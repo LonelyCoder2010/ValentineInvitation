@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>For You</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+    * * {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    height: 100vh;
+    background: url("background.jpg") no-repeat center center/cover;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    font-family: 'Poppins', sans-serif;
+}
+
+#container {
+    background: rgba(0, 0, 0, 0.65);
+    padding: 40px;
+    border-radius: 20px;
+    text-align: center;
+    color: white;
+    max-width: 650px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+}
+
+h1, h2, h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 36px;
+    margin-bottom: 25px;
+}
+
+p {
+    font-size: 22px;
+    line-height: 1.6;
+    margin-bottom: 25px;
+}
+
+button {
+    padding: 18px 40px;
+    font-size: 20px;
+    border: none;
+    border-radius: 14px;
+    cursor: pointer;
+    margin: 12px;
+    font-family: 'Poppins', sans-serif;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+button:hover {
+    transform: scale(1.08);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+}
+
+#yesBtn {
+    background: linear-gradient(135deg, #4CAF50, #6fe28a);
+    color: white;
+}
+
+#noBtn {
+    background: linear-gradient(135deg, #f44336, #ff7961);
+    color: white;
+    position: absolute;
+}
+
+canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+}
+
+video {
+    width: 100%;
+    border-radius: 15px;
+    margin-top: 20px;
+}
+
+.contract {
+    background: white;
+    color: black;
+    padding: 30px;
+    border-radius: 15px;
+    text-align: left;
+    margin-top: 30px;
+    font-size: 20px;
+}
+
+.contract h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    margin-bottom: 15px;
+}
+
+    .contract {
+        background: white;
+        color: black;
+        padding: 20px;
+        border-radius: 10px;
+        text-align: left;
+        margin-top: 20px;
+    }
+</style>
+</head>
+
+<body>
+
+<canvas id="confetti"></canvas>
+
+<div id="container">
+    <h1>Do you want to continue?</h1>
+    <button id="yesBtn">Yes</button>
+    <button id="noBtn">No</button>
+</div>
+
+<script>
+    const container = document.getElementById("container");
+    const yesBtn = document.getElementById("yesBtn");
+    const noBtn = document.getElementById("noBtn");
+    const canvas = document.getElementById("confetti");
+    const ctx = canvas.getContext("2d");
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    let step = 0;
+
+    // No button runs away
+    noBtn.addEventListener("mouseover", () => {
+        const x = Math.random() * (window.innerWidth - 100);
+        const y = Math.random() * (window.innerHeight - 50);
+        noBtn.style.left = x + "px";
+        noBtn.style.top = y + "px";
+    });
+
+    // Confetti
+    function startConfetti() {
+        const pieces = [];
+        for (let i = 0; i < 200; i++) {
+            pieces.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                r: Math.random() * 6 + 4,
+                d: Math.random() * 20,
+                color: `hsl(${Math.random() * 360},100%,50%)`
+            });
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            pieces.forEach(p => {
+                ctx.beginPath();
+                ctx.fillStyle = p.color;
+                ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+                ctx.fill();
+            });
+            update();
+        }
+
+        function update() {
+            pieces.forEach(p => {
+                p.y += Math.cos(p.d) + 2;
+                if (p.y > canvas.height) p.y = 0;
+            });
+        }
+
+        setInterval(draw, 20);
+    }
+
+    yesBtn.addEventListener("click", () => {
+        step++;
+
+        if (step === 1) {
+            startConfetti();
+            container.innerHTML = `
+                <p>Something very personal is about to play.<br>
+                Something no one has ever seen.<br>
+                It was never supposed to be used.</p>
+                <button id="yesBtn">Yes</button>
+                <button id="noBtn">No</button>
+            `;
+        }
+
+        else if (step === 2) {
+            container.innerHTML = `
+                <p>Are you absolutely sure?</p>
+                <button id="yesBtn">Are you sure?</button>
+            `;
+        }
+
+        else if (step === 3) {
+            container.innerHTML = `
+                <p>Please go somewhere completely private.<br>
+                Press continue when you are.</p>
+                <button id="yesBtn">Continue</button>
+            `;
+        }
+
+        else if (step === 4) {
+            container.innerHTML = `
+                <p>For the best experience,<br>please use headphones.</p>
+                <button id="yesBtn">I'm ready</button>
+            `;
+        }
+
+        else if (step === 5) {
+            container.innerHTML = `
+                <video id="video" src="0224.mp4" autoplay></video>
+            `;
+            const video = document.getElementById("video");
+            video.onended = showFinal;
+        }
+
+        rebindButtons();
+    });
+
+    function rebindButtons() {
+        const newYes = document.getElementById("yesBtn");
+        if (newYes) newYes.addEventListener("click", () => yesBtn.click());
+    }
+
+    function showFinal() {
+        container.innerHTML = `
+            <h2>I love you.</h2>
+            <p>Please never tell anyone about this video.</p>
+
+            <div class="contract">
+                <h3>Official Valentine Contract</h3>
+                <p>
+                    By viewing this message, you officially agree to be my Valentine.
+                    This contract is made with love, honesty, and a promise to care.
+                </p>
+                <p>
+                    💖 Signed with feelings that are real 💖
+                </p>
+            </div>
+        `;
+    }
+</script>
+
+</body>
+</html>
